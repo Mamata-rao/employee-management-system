@@ -1,5 +1,8 @@
 package com.mamata.employee_service.dto;
 
+import lombok.Data;
+
+@Data
 public class EmployeeResponseDto {
     private Long id;
 

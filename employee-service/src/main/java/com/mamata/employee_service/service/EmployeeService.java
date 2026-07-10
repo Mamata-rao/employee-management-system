@@ -1,9 +1,9 @@
 package com.mamata.employee_service.service;
 
-import com.mamata.employee_service.entity.Employee;
-import com.mamata.employee_service.repository.EmployeeRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mamata.employee_service.dto.EmployeeRequestDto;
+import com.mamata.employee_service.dto.EmployeeResponseDto;
+
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,13 +11,13 @@ import java.util.List;
 @Component
 public interface EmployeeService {
 
-    Employee saveEmployee(Employee employee);
+    EmployeeResponseDto saveEmployee(EmployeeRequestDto employeeRequestDto);
 
-    List<Employee> getAllEmployee();
+    Page<EmployeeResponseDto> getAllEmployee(int page, int size, String sortBy, String direction);
 
-    Employee getEmpById(Long id);
+    EmployeeResponseDto getEmpById(Long id);
 
-    Employee updateEmployee(Long id, Employee employee);
+    EmployeeResponseDto updateEmployee(Long id, EmployeeRequestDto employeeRequestDto);
 
     void deleteEmployee(Long id);
 }
