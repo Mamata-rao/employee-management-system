@@ -2,11 +2,10 @@ package com.mamata.employee_service.service;
 
 import com.mamata.employee_service.dto.EmployeeRequestDto;
 import com.mamata.employee_service.dto.EmployeeResponseDto;
-
+import com.mamata.employee_service.dto.EmployeeSearchRequest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public interface EmployeeService {
@@ -20,4 +19,6 @@ public interface EmployeeService {
     EmployeeResponseDto updateEmployee(Long id, EmployeeRequestDto employeeRequestDto);
 
     void deleteEmployee(Long id);
+
+   Page<EmployeeResponseDto> searchEmployee(EmployeeSearchRequest employeeSearchRequest, Pageable pageable);
 }

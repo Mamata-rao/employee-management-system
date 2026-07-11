@@ -2,16 +2,19 @@ package com.mamata.employee_service.service.impl;
 
 import com.mamata.employee_service.dto.EmployeeRequestDto;
 import com.mamata.employee_service.dto.EmployeeResponseDto;
+import com.mamata.employee_service.dto.EmployeeSearchRequest;
 import com.mamata.employee_service.entity.Employee;
 import com.mamata.employee_service.mapper.EmployeeMapper;
 import com.mamata.employee_service.repository.EmployeeRepository;
 import com.mamata.employee_service.service.EmployeeService;
+import com.mamata.employee_service.specification.EmployeeSpecification;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -65,5 +68,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteEmployee(Long id) {
         employeeRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<EmployeeResponseDto> searchEmployee(EmployeeSearchRequest employeeSearchRequest, Pageable pageable) {
+        Specification<Employee> specification = EmployeeSpecification.search(employeeSearchRequest);
+        return employeeRepository.findAll(specification,pageable)
+                .map(EmployeeMapper::toDto);
     }
 }

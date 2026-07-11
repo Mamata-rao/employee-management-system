@@ -2,10 +2,13 @@ package com.mamata.employee_service.controller;
 
 import com.mamata.employee_service.dto.EmployeeRequestDto;
 import com.mamata.employee_service.dto.EmployeeResponseDto;
+import com.mamata.employee_service.dto.EmployeeSearchRequest;
 import com.mamata.employee_service.entity.Employee;
 import com.mamata.employee_service.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,4 +50,22 @@ public class EmployeeController {
     public EmployeeResponseDto updateEmployeeById(@PathVariable Long id, @RequestBody EmployeeRequestDto employeeRequestDto){
         return employeeService.updateEmployee(id,employeeRequestDto);
     }
+
+    @DeleteMapping({"/id"})
+    public void deleteEmployee(@PathVariable Long id){
+        employeeService.deleteEmployee(id);
+    }
+
+    @GetMapping("/search")
+    public Page<EmployeeResponseDto> searchEmployee(EmployeeSearchRequest employeeSearchRequest,
+                                                    @PageableDefault(
+                                                            size=5,
+                                                            sort="id"
+                                                    )
+                                                    Pageable pagable)
+    {
+       return employeeService.searchEmployee(employeeSearchRequest,pagable);
+    }
+
+
 }
