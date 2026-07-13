@@ -4,6 +4,7 @@ import com.mamata.employee_service.dto.EmployeeRequestDto;
 import com.mamata.employee_service.dto.EmployeeResponseDto;
 import com.mamata.employee_service.dto.EmployeeSearchRequest;
 import com.mamata.employee_service.entity.Employee;
+import com.mamata.employee_service.exception.EmployeeNotFoundException;
 import com.mamata.employee_service.mapper.EmployeeMapper;
 import com.mamata.employee_service.repository.EmployeeRepository;
 import com.mamata.employee_service.service.EmployeeService;
@@ -48,7 +49,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponseDto getEmpById(Long id) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id"+id));
         return EmployeeMapper.toDto(employee);
     }
 

@@ -5,6 +5,7 @@ import com.mamata.employee_service.dto.EmployeeResponseDto;
 import com.mamata.employee_service.dto.EmployeeSearchRequest;
 import com.mamata.employee_service.entity.Employee;
 import com.mamata.employee_service.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +26,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/save")
-    private EmployeeResponseDto saveEmployee(@RequestBody EmployeeRequestDto employeeRequestDto){
+    private EmployeeResponseDto saveEmployee(@Valid @RequestBody EmployeeRequestDto employeeRequestDto){
         return employeeService.saveEmployee(employeeRequestDto);
     }
 
