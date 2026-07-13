@@ -10,7 +10,7 @@ import com.mamata.employee_service.repository.EmployeeRepository;
 import com.mamata.employee_service.service.EmployeeService;
 import com.mamata.employee_service.specification.EmployeeSpecification;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
@@ -36,10 +35,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Page<EmployeeResponseDto> getAllEmployee(int page, int size, String sortBy, String direction) {
 
-        Sort sort = direction.equalsIgnoreCase("asc")?
-               Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+        Sort sort = direction.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(page,size,sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Employee> employeePage = employeeRepository.findAll(pageable);
 
@@ -49,7 +48,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponseDto getEmpById(Long id) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id"+id));
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id" + id));
+        log.info("Employee found by id: {}", id);
         return EmployeeMapper.toDto(employee);
     }
 
@@ -68,13 +68,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void deleteEmployee(Long id) {
-        employeeRepository.deleteById(id);
+        Employee employee = employeeRepository.findById(id)
+                        .orElseThrow(()->new EmployeeNotFoundException("Employee not found"));
+        employeeRepository.delete(employee);
     }
 
     @Override
     public Page<EmployeeResponseDto> searchEmployee(EmployeeSearchRequest employeeSearchRequest, Pageable pageable) {
         Specification<Employee> specification = EmployeeSpecification.search(employeeSearchRequest);
-        return employeeRepository.findAll(specification,pageable)
+        return employeeRepository.findAll(specification, pageable)
                 .map(EmployeeMapper::toDto);
     }
 }
