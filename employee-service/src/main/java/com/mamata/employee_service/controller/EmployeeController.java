@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,8 +28,10 @@ public class EmployeeController {
     }
 
     @PostMapping("/save")
-    private EmployeeResponseDto saveEmployee(@Valid @RequestBody EmployeeRequestDto employeeRequestDto){
-        return employeeService.saveEmployee(employeeRequestDto);
+    private ResponseEntity<EmployeeResponseDto> saveEmployee(@Valid @RequestBody EmployeeRequestDto employeeRequestDto){
+        EmployeeResponseDto employeeResponseDto = employeeService.saveEmployee(employeeRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(employeeResponseDto);
     }
 
     @GetMapping
@@ -48,13 +52,15 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public EmployeeResponseDto updateEmployeeById(@PathVariable Long id, @RequestBody EmployeeRequestDto employeeRequestDto){
-        return employeeService.updateEmployee(id,employeeRequestDto);
+    public ResponseEntity<EmployeeResponseDto> updateEmployeeById(@PathVariable Long id, @RequestBody EmployeeRequestDto employeeRequestDto){
+        EmployeeResponseDto responseDto= employeeService.updateEmployee(id,employeeRequestDto);
+        return ResponseEntity.ok(responseDto);
     }
 
-    @DeleteMapping({"/id"})
-    public void deleteEmployee(@PathVariable Long id){
+    @DeleteMapping({"/{id}"})
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id){
         employeeService.deleteEmployee(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")

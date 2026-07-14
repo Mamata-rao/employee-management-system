@@ -9,6 +9,7 @@ import com.mamata.employee_service.repository.EmployeeRepository;
 import com.mamata.employee_service.service.impl.EmployeeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -40,6 +41,7 @@ public class EmployeeServiceImplTest {
 
         when(employeeRepository.save(any(Employee.class)))
                 .thenReturn(employee);
+
         EmployeeResponseDto response = employeeService.saveEmployee(employeeRequestDto);
         employee.setId(2L);
         assertNotNull(response);
@@ -48,8 +50,8 @@ public class EmployeeServiceImplTest {
     }
 
     @Test
-    public void shouldReturnEmpById(){
-        Employee employee =new Employee("Mamata",
+    public void shouldReturnEmpById() {
+        Employee employee = new Employee("Mamata",
                 "mam@gmail.com",
                 2L,
                 "IT",
@@ -62,31 +64,39 @@ public class EmployeeServiceImplTest {
     }
 
     @Test
-    public void shouldEmployeeUpdateSuccessfully(){
-        EmployeeRequestDto employeeRequestDto = new EmployeeRequestDto();
-        employeeRequestDto.setName("Mamata");
-        employeeRequestDto.setSalary(347.0);
-        employeeRequestDto.setDepartment("IT");
-        employeeRequestDto.setEmail("mamata@gmail.com");
-
-        Employee employee = EmployeeMapper.toEntity(employeeRequestDto);
+    public void shouldEmployeeUpdateSuccessfully() {
+        Employee employee = new Employee();
         employee.setId(2L);
+        employee.setName("Old Name");
+        employee.setEmail("old@gmail.com");
+        employee.setDepartment("HR");
+        employee.setSalary(50000.0);
+
+        EmployeeRequestDto request = new EmployeeRequestDto();
+        request.setName("Mamata Rao");
+        request.setEmail("mamata@gmail.com");
+        request.setDepartment("IT");
+        request.setSalary(85000.0);
 
         when(employeeRepository.findById(2L)).thenReturn(Optional.of(employee));
-        employeeRequestDto.setName("Bulli");
-        employeeRequestDto.setSalary(3478.0);
-        employeeRequestDto.setDepartment("Commerce");
-        employeeRequestDto.setEmail("Bulli@gmail.com");
-        when(employeeRepository.save(employee)).thenReturn(employee);
 
-        EmployeeResponseDto employeeResponseDto = employeeService.updateEmployee(2L,employeeRequestDto);
+        // when(employeeRepository.save(employee)).thenReturn(employee);
+        when(employeeRepository.save(any(Employee.class)))
+                .thenAnswer(invocation -> (Employee) invocation.getArgument(0));//gives actual object passed to Mock method
 
-        assertNotNull(employeeResponseDto);
+        EmployeeResponseDto response = employeeService.updateEmployee(2L, request);
+
+        assertNotNull(response);
+        assertNotNull(response);
+        assertEquals("Mamata Rao", response.getName());
+        assertEquals("mamata@gmail.com", response.getEmail());
+        assertEquals("IT", response.getDepartment());
+        assertEquals(85000.0, response.getSalary());
         verify(employeeRepository).save(any(Employee.class));
     }
 
     @Test
-    public void shouldDeleteEmployee(){
+    public void shouldDeleteEmployee() {
 
 
         employeeService.deleteEmployee(1L);
@@ -95,28 +105,86 @@ public class EmployeeServiceImplTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenDeleteFails(){
+    public void shouldThrowExceptionWhenDeleteFails() {
         doThrow(new RuntimeException("Database error"))
                 .when(employeeRepository)
                 .deleteById(1L);
 
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                ()->employeeService.deleteEmployee(1L)
+                () -> employeeService.deleteEmployee(1L)
         );
-        assertEquals("Database error",exception.getMessage());
+        assertEquals("Database error", exception.getMessage());
         verify(employeeRepository).deleteById(1L);
     }
 
     @Test
-    public void shouldThrowExceptionWhileDeletingEmployee(){
+    public void shouldThrowExceptionWhileDeletingEmployee() {
         when(employeeRepository.findById(1L))
                 .thenReturn(Optional.empty());
         assertThrows(
                 EmployeeNotFoundException.class,
-                ()->employeeService.deleteEmployee(1L)
+                () -> employeeService.deleteEmployee(1L)
         );
         verify(employeeRepository, never()).deleteById(any());//if the employee isn't found, delete() should never be called.
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenUpdatingNonExistingEmployee() {
+        EmployeeRequestDto requestDto = new EmployeeRequestDto();
+        requestDto.setName("Mamata");
+
+        when(employeeRepository.findById(100L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                EmployeeNotFoundException.class,
+                () -> employeeService.updateEmployee(100L, requestDto)
+        );
+
+        verify(employeeRepository).findById(100L);
+        verify(employeeRepository, never()).save(any());
+
+    }
+
+    @Test
+    void shouldUpdateEmployeeSuccessfully() {
+
+        Employee employee = new Employee();
+        employee.setId(2L);
+        employee.setName("Old Name");
+        employee.setEmail("old@gmail.com");
+        employee.setDepartment("HR");
+        employee.setSalary(50000.0);
+
+        EmployeeRequestDto request = new EmployeeRequestDto();
+        request.setName("Mamata Rao");
+        request.setEmail("mamata@gmail.com");
+        request.setDepartment("IT");
+        request.setSalary(85000.0);
+
+        when(employeeRepository.findById(2L))
+                .thenReturn(Optional.of(employee));
+
+        when(employeeRepository.save(any(Employee.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        EmployeeResponseDto response =
+                employeeService.updateEmployee(2L, request);
+
+        ArgumentCaptor<Employee> captor =
+                ArgumentCaptor.forClass(Employee.class);//Captures the actual object passed,It is extremely useful whenever you pass complex objects to another component.
+        //Suppose if we pass existEmployee.setSalary(0.0) instead of existEmployee.setSalary(employee.getSalary());
+        verify(employeeRepository).save(captor.capture());
+
+        Employee savedEmployee = captor.getValue();
+
+        assertEquals("Mamata Rao", savedEmployee.getName());
+        assertEquals("mamata@gmail.com", savedEmployee.getEmail());
+        assertEquals("IT", savedEmployee.getDepartment());
+        assertEquals(85000.0, savedEmployee.getSalary());
+
+        assertEquals("Mamata Rao", response.getName());
     }
 
 

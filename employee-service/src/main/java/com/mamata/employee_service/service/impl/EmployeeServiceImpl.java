@@ -57,7 +57,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponseDto updateEmployee(Long id, EmployeeRequestDto employeeRequestDto) {
         Employee employee = EmployeeMapper.toEntity(employeeRequestDto);
         Employee existEmployee = employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found"));
         existEmployee.setEmail(employee.getEmail());
         existEmployee.setName(employee.getName());
         existEmployee.setDepartment(employee.getDepartment());
