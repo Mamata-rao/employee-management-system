@@ -5,6 +5,8 @@ import com.mamata.employee_service.dto.EmployeeResponseDto;
 import com.mamata.employee_service.dto.EmployeeSearchRequest;
 import com.mamata.employee_service.entity.Employee;
 import com.mamata.employee_service.service.EmployeeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,8 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
+    @Operation(summary = "Create Employee")
+    @ApiResponse(responseCode = "201",description = "Employee Created")
     @PostMapping("/save")
     private ResponseEntity<EmployeeResponseDto> saveEmployee(@Valid @RequestBody EmployeeRequestDto employeeRequestDto){
         EmployeeResponseDto employeeResponseDto = employeeService.saveEmployee(employeeRequestDto);
@@ -46,6 +50,9 @@ public class EmployeeController {
         return employeeService.getAllEmployee(page, size, sortBy, direction);
     }
 
+    @Operation(summary = "Get Employee by id")
+    @ApiResponse(responseCode = "200",description = "Employee found")
+    @ApiResponse(responseCode = "404",description = "Employee Not found")
     @GetMapping("/{id}")
     public EmployeeResponseDto getEmployeeById(@PathVariable Long id){
         return employeeService.getEmpById(id);

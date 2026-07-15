@@ -60,7 +60,7 @@ public class EmployeeServiceImplTest {
         EmployeeResponseDto response = employeeService.getEmpById(2L);
 
         assertNotNull(response);
-        verify(employeeRepository.findById(2L));
+        verify(employeeRepository).findById(2L);
     }
 
     @Test
@@ -98,24 +98,26 @@ public class EmployeeServiceImplTest {
     @Test
     public void shouldDeleteEmployee() {
 
-
+        Employee employee = new Employee();
+        employee.setId(1L);
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
         employeeService.deleteEmployee(1L);
-        verify(employeeRepository).deleteById(1L);
+        verify(employeeRepository).findById(1L);
+        verify(employeeRepository).delete(employee);
 
     }
 
     @Test
     public void shouldThrowExceptionWhenDeleteFails() {
-        doThrow(new RuntimeException("Database error"))
-                .when(employeeRepository)
-                .deleteById(1L);
-
+        Employee employee = new Employee();
+        when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
         RuntimeException exception = assertThrows(
-                RuntimeException.class,
+                EmployeeNotFoundException.class,
                 () -> employeeService.deleteEmployee(1L)
         );
-        assertEquals("Database error", exception.getMessage());
-        verify(employeeRepository).deleteById(1L);
+
+        assertEquals("Employee not found", exception.getMessage());
+        verify(employeeRepository,never()).delete(employee);
     }
 
     @Test
