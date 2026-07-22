@@ -1,12 +1,14 @@
 package com.mamata.employee_service.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mamata.employee_service.dto.EmployeeRequestDto;
 import com.mamata.employee_service.dto.EmployeeResponseDto;
+import com.mamata.employee_service.security.jwt.JwtService;
+import com.mamata.employee_service.security.service.CustomerUserDetailsService;
 import com.mamata.employee_service.service.EmployeeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -18,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EmployeeController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class EmployeeControllerTest {
 
     @Autowired
@@ -25,6 +28,12 @@ public class EmployeeControllerTest {
 
     @MockitoBean
     private EmployeeService employeeService;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private CustomerUserDetailsService customerUserDetailsService;
 
     @Autowired
     private ObjectMapper objectMapper;

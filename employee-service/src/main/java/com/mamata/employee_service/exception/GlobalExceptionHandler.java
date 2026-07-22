@@ -3,6 +3,7 @@ package com.mamata.employee_service.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,5 +36,18 @@ public class GlobalExceptionHandler {
                         errors.put(error.getField(),
                                 error.getDefaultMessage()));
         return new ResponseEntity<>(errors,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex,HttpServletRequest request){
+        ErrorResponse response= ErrorResponse.builder()
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .timestamp(LocalDateTime.now()).build();
+
+        return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+
     }
 }
